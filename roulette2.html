@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>最終課題</title>
+<script src="jquery-3.5.1.min.js"></script>
+    <link rel="stylesheet" href="roulette2.css">
+    <script>
+        $(function(){　　//以下10～12行目でオブジェクトデータと14行目から62行目まで関数定義
+            let idx = 0;
+            let timerId;
+            let pool = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];　//止まって欲しいマス一覧
+    
+            //startボタン
+            $('#start').on('click',function(){  //startに関する関数定義　16～19行目
+                timerId=setInterval(roulette,10); //setInterval関数定義 10はtimerスピード
+                $('#start').prop('disabled',true);　//propで#startの状態を消している　　　　←と↓でリセットとストップしか押せなくしている
+                $('#stop,#reset').prop('disabled',false);　//propで stop,stop の状態を「消えていない」ようにしている　押せる状態にしている
+            });
+    
+            function roulette() {　//ルーレットに関する関数定義
+                if (pool.length === 0) {　//止まって欲しいマスが0の時
+                    $('#start').prop('disabled',true);
+                }　//スタートは押せない
+
+                idx=pool[Math.floor(Math.random()*pool.length)];　//プールからランダムでルーレットが回る仕組み
+                $('#t1 td').removeClass("selected").eq(idx).addClass("selected");　//.removeClassはテーブル　#t1、td'のクラス全部消す　※一旦#t1 tdをリセットして、前にいた場所を消す）
+            }                                                                     //addClass("selected)自体で今選択した場所を赤くしている　.eqでインデックス番号を指定することで特定の要素を取得
+    
+            //stopボタン
+            $('#stop').prop('disabled',true);　//stopボタンを消してあるのでもう押せなくしている
+            $('#stop').on('click',function(){　//stopボタンを押されたら以下の定義
+                clearInterval(timerId);     //赤く移動するtimerIdのインターバル消し
+                $('#t1 td').eq(idx).addClass("confirm");//青くなるクラスがconfirmで追加されている
+                pool.splice(pool.indexOf(idx), 1); 
+                //poolから止まったマスの要素を取り除く。
+                if (pool.length > 0)  {
+                    $('#start').prop('disabled',false); 
+                }
+               //↑止まって欲しいマスが0より大きい時はスタートを押せる
+                $('#stop').prop('disabled',true);   //ストップすでに押してあるので消している
+                $('#reset').prop('disabled',false); //リセットは押せる状態にしている
+            });
+    
+            //resetボタン
+            $('#reset').on('click',function(){　//リセットボタンを押したら
+                clearInterval(timerId);         //インターバルをリセット
+                $('#t1 td').removeClass("confirm").removeClass("selected");//.removeClassで「青くなるクラス」と「選択した場所を赤くするクラス」を変数をリセット
+                $('#start').prop('disabled',false);　//スタートを押せる状態にする
+                $('#stop').prop('disabled',true);　　//ストップは押せなくする（リセットしたら押せるのはスタートかリセットだけおせる状態にしている）
+                pool = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];　//止まって欲しいマスを再定義
+            });
+    
+            for (var i = 0; i < 4; i++) {　//行を作るためのカウント変数
+                var a = $('<tr>');　// iが４回カウントされるまで表の横一行を足す
+                for (var j = 0; j < 4; j++) {　//jが４回カウントされるまで
+                    var b = i * 4 + j + 1; // iとJは0スタート　最初は0*4+0+1　←でtdの数を作成　これを　var bに代入
+                    a.append($('<td>').text(b));　//対象要素.append( 追加したい要素 )で引数へ追加したいテキストや要素を指定　var bをtdに代入
+                }
+                $('#t1').append(a);　//#t1のid取得宣言、.appendで（a）を引数へ追加　aをｔ1に代入
+            }
+        });
+    </script>
+    </head>
+    <body>
+        <h2>Javascriptを使用したルーレット</h2>
+        <p>スタートで１６マスがランダムに光り、ストップでマスに止まる。<br>１６マス止まれば終了。</p>
+        <table id="t1">
+        </table>
+            <input type="button" value="スタート" id="start">
+            <input type="button" value="ストップ" id="stop">
+            <input type="button" value="リセット" id="reset">
+    </body>
+    </html>
+    
